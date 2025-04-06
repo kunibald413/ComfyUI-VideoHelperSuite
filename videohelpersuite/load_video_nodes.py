@@ -21,6 +21,10 @@ from .utils import BIGMAX, DIMMAX, calculate_file_hash, get_sorted_dir_files_fro
 
 video_extensions = ['webm', 'mp4', 'mkv', 'gif', 'mov']
 
+from .vid_node_helper import replace_b64_with_input_path
+def b64_to_vid(args):
+    return replace_b64_with_input_path(args, folder_paths.input_directory)
+
 VHSLoadFormats = {
     'None': {},
     'AnimateDiff': {'target_rate': 8, 'dim': (8,0,512,512)},
@@ -449,6 +453,7 @@ class LoadVideoUpload:
     FUNCTION = "load_video"
 
     def load_video(self, **kwargs):
+        kwargs = b64_to_vid(kwargs)
         kwargs['video'] = folder_paths.get_annotated_filepath(strip_path(kwargs['video']))
         return load_video(**kwargs)
 
@@ -496,6 +501,7 @@ class LoadVideoPath:
     FUNCTION = "load_video"
 
     def load_video(self, **kwargs):
+        kwargs = b64_to_vid(kwargs)
         if kwargs['video'] is None or validate_path(kwargs['video']) != True:
             raise Exception("video is not a valid path: " + kwargs['video'])
         if is_url(kwargs['video']):
@@ -548,6 +554,7 @@ class LoadVideoFFmpegUpload:
     FUNCTION = "load_video"
 
     def load_video(self, **kwargs):
+        kwargs = b64_to_vid(kwargs)
         kwargs['video'] = folder_paths.get_annotated_filepath(strip_path(kwargs['video']))
         image, _, audio, video_info =  load_video(**kwargs, generator=ffmpeg_frame_generator)
         if image.size(3) == 4:
@@ -597,6 +604,7 @@ class LoadVideoFFmpegPath:
     FUNCTION = "load_video"
 
     def load_video(self, **kwargs):
+        kwargs = b64_to_vid(kwargs)
         if kwargs['video'] is None or validate_path(kwargs['video']) != True:
             raise Exception("video is not a valid path: " + kwargs['video'])
         if is_url(kwargs['video']):
