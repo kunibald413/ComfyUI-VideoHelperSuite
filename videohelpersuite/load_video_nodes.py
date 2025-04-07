@@ -21,7 +21,7 @@ from .utils import BIGMAX, DIMMAX, calculate_file_hash, get_sorted_dir_files_fro
 
 video_extensions = ['webm', 'mp4', 'mkv', 'gif', 'mov']
 
-from .vid_node_helper import replace_b64_with_input_path
+from .vid_node_helper import replace_b64_with_input_path, is_base64
 def b64_to_vid(args):
     return replace_b64_with_input_path(args, folder_paths.input_directory)
 
@@ -464,7 +464,7 @@ class LoadVideoUpload:
 
     @classmethod
     def VALIDATE_INPUTS(s, video):
-        if not folder_paths.exists_annotated_filepath(video):
+        if not folder_paths.exists_annotated_filepath(video) and not is_base64(video):
             return "Invalid video file: {}".format(video)
         return True
 
@@ -514,6 +514,8 @@ class LoadVideoPath:
 
     @classmethod
     def VALIDATE_INPUTS(s, video):
+        if is_base64(video):
+            return True
         return validate_path(video, allow_none=True)
 
 class LoadVideoFFmpegUpload:
@@ -568,7 +570,7 @@ class LoadVideoFFmpegUpload:
 
     @classmethod
     def VALIDATE_INPUTS(s, video):
-        if not folder_paths.exists_annotated_filepath(video):
+        if not folder_paths.exists_annotated_filepath(video) and not is_base64(video):
             return "Invalid video file: {}".format(video)
         return True
 
@@ -622,6 +624,8 @@ class LoadVideoFFmpegPath:
 
     @classmethod
     def VALIDATE_INPUTS(s, video):
+        if is_base64(video):
+            return True
         return validate_path(video, allow_none=True)
 
 class LoadImagePath:
