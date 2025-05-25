@@ -10,6 +10,7 @@ from typing import Union
 import functools
 import torch
 from torch import Tensor
+import base64
 
 import server
 from .logger import logger
@@ -287,6 +288,13 @@ def strip_path(path):
 def hash_path(path):
     if path is None:
         return "input"
+    # Try base64 decoding first
+    try:
+        decoded = base64.b64decode(path, validate=True)
+        return hashlib.sha256(decoded).hexdigest()
+    except:
+        pass  # Not base64, continue to other checks
+
     if is_url(path):
         return "url"
     return calculate_file_hash(strip_path(path))
