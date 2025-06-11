@@ -32,6 +32,10 @@ if len(folder_paths.folder_names_and_paths['VHS_video_formats'][1]) == 0:
     folder_paths.folder_names_and_paths["VHS_video_formats"][1].add(".json")
 audio_extensions = ['mp3', 'mp4', 'wav', 'ogg']
 
+from .vid_node_helper import replace_b64_with_input_path, is_base64
+def b64_to_audio(args):
+    return replace_b64_with_input_path(args, folder_paths.input_directory)
+
 def gen_format_widgets(video_format):
     for k in video_format:
         if k.endswith("_pass"):
@@ -606,6 +610,7 @@ class LoadAudio:
     CATEGORY = "Video Helper Suite 🎥🅥🅗🅢/audio"
     FUNCTION = "load_audio"
     def load_audio(self, audio_file, seek_seconds):
+        audio_file = b64_to_audio({"audio": audio_file})['audio'] # noop if filepath
         audio_file = strip_path(audio_file)
         if audio_file is None or validate_path(audio_file) != True:
             raise Exception("audio_file is not a valid path: " + audio_file)
@@ -621,6 +626,8 @@ class LoadAudio:
 
     @classmethod
     def VALIDATE_INPUTS(s, audio_file, **kwargs):
+        if is_base64(audio_file):
+            return True
         return validate_path(audio_file, allow_none=True)
 
 class LoadAudioUpload:
@@ -647,6 +654,7 @@ class LoadAudioUpload:
     FUNCTION = "load_audio"
 
     def load_audio(self, start_time, duration, **kwargs):
+        kwargs = b64_to_audio(kwargs)
         audio_file = folder_paths.get_annotated_filepath(strip_path(kwargs['audio']))
         if audio_file is None or validate_path(audio_file) != True:
             raise Exception("audio_file is not a valid path: " + audio_file)
@@ -660,6 +668,8 @@ class LoadAudioUpload:
 
     @classmethod
     def VALIDATE_INPUTS(s, audio, **kwargs):
+        if is_base64(audio):
+            return True
         audio_file = folder_paths.get_annotated_filepath(strip_path(audio))
         return validate_path(audio_file, allow_none=True)
 class AudioToVHSAudio:
