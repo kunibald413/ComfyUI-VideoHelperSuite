@@ -4,13 +4,16 @@ import os
 import uuid
 from datetime import datetime
 
+VALID_FILE_EXT = {".mp4", ".mp3", ".wav"}
+
+
 def replace_b64_with_input_path(args, output_dir: str = "./temp_videos") -> Any:
     if not isinstance(args, dict):
         return args
     if 'video' in args:
         is_b64, data_bytes = is_base64(args['video'])
         if is_b64:
-            path_to_vid = save_base64_to_file(data_bytes, output_dir)
+            path_to_vid = save_base64_to_file(data_bytes,"from_b64_video", ".mp4", output_dir)
             args['video'] = path_to_vid
     return args
 
@@ -26,14 +29,21 @@ def is_base64(data) -> Tuple[bool, Union[None, bytes]]:
     return False, None
 
 
-def save_base64_to_file(video_data: bytes, output_dir: str = "./temp_videos") -> str:
+def save_base64_to_file(
+    data_bytes: bytes,
+    file_prefix: str,
+    file_ext: str,
+    output_dir: str = "./temp"
+) -> str:
+    if file_ext not in VALID_FILE_EXT:
+        raise Exception(f"invalid file extension: {file_ext}, valid: {VALID_FILE_EXT}")
     try:
         os.makedirs(output_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        file_name = f"from_b64_video_{timestamp}_{uuid.uuid4().hex}.mp4"
+        file_name = f"{file_prefix}_{timestamp}_{uuid.uuid4().hex}{file_ext}"
         file_path = os.path.join(output_dir, file_name)
         with open(file_path, "wb") as f:
-            f.write(video_data)
+            f.write(data_bytes)
         return file_path
     except Exception as e:
         raise Exception(f"Failed to save base64 video: {e}")
@@ -58,7 +68,7 @@ def _test():
 
     # Step 4: Test the `save_base64_to_file` function
     try:
-        saved_file_path = save_base64_to_file(decoded_data)
+        saved_file_path = save_base64_to_file(decoded_data, "test_vid", ".mp4")
         print(f"Video saved successfully to: {saved_file_path}")
     except Exception as e:
         raise Exception(f"Failed to save base64 video: {e}")
