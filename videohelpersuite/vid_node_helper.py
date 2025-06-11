@@ -97,8 +97,8 @@ def _base_test(input_file_path: str, media_key: str, file_prefix: str, file_ext:
     replace_b64_with_input_path(args)
     print(args)
     assert media_key in args
-    assert os.path.exists(compare[media_key])
-    assert os.path.isfile(compare[media_key])
+    assert os.path.exists(args[media_key])
+    assert os.path.isfile(args[media_key])
 
 if __name__ == "__main__":
     _test_vid()
