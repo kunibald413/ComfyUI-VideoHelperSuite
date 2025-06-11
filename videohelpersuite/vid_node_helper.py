@@ -4,7 +4,7 @@ import os
 import uuid
 from datetime import datetime
 
-VALID_FILE_EXT = {".mp4", ".mp3", ".wav"}
+VALID_FILE_EXT = {".mp4", ".mp3", ".wav", ".ogg"}
 
 
 def replace_b64_with_input_path(args, output_dir: str = "./temp_videos") -> Any:
