@@ -173,7 +173,8 @@ def cv_frame_generator(video, force_rate, frame_load_cap, skip_first_frames,
 
 def ffmpeg_frame_generator(video, force_rate, frame_load_cap, start_time,
                            custom_width, custom_height, downscale_ratio=8,
-                           meta_batch=None, unique_id=None):
+                           meta_batch=None, unique_id=None,
+                           skip_first_frames=None):
     args_dummy = [ffmpeg_path, "-i", video, '-c', 'copy', '-frames:v', '1', "-f", "null", "-"]
     size_base = None
     fps_base = None
@@ -233,6 +234,8 @@ def ffmpeg_frame_generator(video, force_rate, frame_load_cap, start_time,
         vfilters.append(f"scale={size_arg}")
     else:
         size = size_base
+    if skip_first_frames is not None and isinstance(skip_first_frames, int):
+        vfilters.append(f'select="gte(n\\, {skip_first_frames})"')
     if len(vfilters) > 0:
         args_all_frames += ["-vf", ",".join(vfilters)]
     yieldable_frames = (force_rate or fps_base)*duration
@@ -535,6 +538,7 @@ class LoadVideoFFmpegUpload:
                     "custom_height": ("INT", {"default": 0, "min": 0, "max": DIMMAX, 'disable': 0}),
                     "frame_load_cap": ("INT", {"default": 0, "min": 0, "max": BIGMAX, "step": 1, "disable": 0}),
                     "start_time": ("FLOAT", {"default": 0, "min": 0, "max": BIGMAX, "step": .001}),
+                    "skip_first_frames": ("INT", {"default": 0, "min": 0, "max": BIGMAX, "step": 1}),
                     },
                 "optional": {
                     "meta_batch": ("VHS_BatchManager",),
@@ -586,6 +590,7 @@ class LoadVideoFFmpegPath:
                 "custom_height": ("INT", {"default": 0, "min": 0, "max": DIMMAX, 'disable': 0}),
                 "frame_load_cap": ("INT", {"default": 0, "min": 0, "max": BIGMAX, "step": 1, "disable": 0}),
                 "start_time": ("FLOAT", {"default": 0, "min": 0, "max": BIGMAX, "step": .001}),
+                "skip_first_frames": ("INT", {"default": 0, "min": 0, "max": BIGMAX, "step": 1}),
             },
             "optional": {
                 "meta_batch": ("VHS_BatchManager",),
