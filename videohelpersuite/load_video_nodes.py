@@ -234,8 +234,8 @@ def ffmpeg_frame_generator(video, force_rate, frame_load_cap, start_time,
         vfilters.append(f"scale={size_arg}")
     else:
         size = size_base
-    if skip_first_frames is not None and isinstance(skip_first_frames, int):
-        vfilters.append(f'select="gte(n\\, {skip_first_frames})"')
+    if skip_first_frames is not None and isinstance(skip_first_frames, int) and skip_first_frames > 0:
+        vfilters.append(f"select='gte(n, {skip_first_frames})'")
     if len(vfilters) > 0:
         args_all_frames += ["-vf", ",".join(vfilters)]
     yieldable_frames = (force_rate or fps_base)*duration
